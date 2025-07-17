@@ -2,17 +2,21 @@
 
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
-import {GithubIcon, Loader} from "lucide-react";
+import {GithubIcon, Loader, Send} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
-import {useTransition} from "react";
+import {useState, useTransition} from "react";
 import {authClient} from "@/lib/auth-client";
 import {toast} from "sonner";
+import {useRouter} from "next/navigation";
 
 // ----------------------------------------------------------------------
 
 export function LoginForm() {
-    const [githubPendding, startGithubTransition] = useTransition();
+    const [githubPending, startGithubTransition] = useTransition();
+    const [emailPending, stratEmailTransition] = useTransition();
+    const router  = useRouter();
+    const [email, setEmail] = useState('');
 
     async function signInWithGithub() {
         startGithubTransition(async () => {
@@ -28,8 +32,28 @@ export function LoginForm() {
                     }
                 }
             });
+        });
+    }
+
+
+    function SignInWithEmail() {
+        stratEmailTransition(async () => {
+            await authClient.emailOtp.sendVerificationOtp({
+                email: email,
+                type: 'sign-in',
+                fetchOptions: {
+                    onSuccess: () => {
+                        toast.success("Email has been sent successfully!");
+                        router.push(`/verify-request?email=${email}`);
+                    },
+                    onError: () => {
+                        toast.error("Error sending email");
+                    }
+                }
+            })
         })
     }
+
     return (
         <Card>
             <CardHeader>
@@ -43,12 +67,12 @@ export function LoginForm() {
 
             <CardContent className="flex flex-col gap-4">
                 <Button
-                    disabled={githubPendding}
+                    disabled={githubPending}
                     onClick={signInWithGithub}
                     className="w-full"
                     variant="outline"
                 >
-                    {githubPendding ? (
+                    {githubPending ? (
                         <>
                             <Loader className="size-4 animate-spin"/>
                             <span>Loading...</span>
@@ -72,10 +96,31 @@ export function LoginForm() {
                 <div className="grid gap-3">
                     <div className="grid gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input type="email" placeholder="m@exemple.com"/>
+                        <Input
+                            value={email}
+                            type="email"
+                            placeholder="m@exemple.com"
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                        />
                     </div>
 
-                    <Button>Continue with email</Button>
+                    <Button
+                        onClick={SignInWithEmail}
+                        disabled={emailPending}
+                    >
+                        {emailPending ? (
+                            <>
+                                <Loader className="size-4 animate-spin"/>
+                                <span>Loading...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Send className="size-4" />
+                                <span>Continue with email</span>
+                            </>
+                        )}
+                    </Button>
                 </div>
 
             </CardContent>
