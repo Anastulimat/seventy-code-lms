@@ -1,10 +1,4 @@
-import {
-    BookOpen,
-    ChevronDownIcon,
-    HomeIcon,
-    LayoutDashboardIcon,
-    LogOutIcon,
-} from "lucide-react"
+import {BookOpen, ChevronDownIcon, HomeIcon, LayoutDashboardIcon, LogOutIcon,} from "lucide-react"
 
 import {Avatar, AvatarFallback, AvatarImage,} from "@/components/ui/avatar"
 import {Button} from "@/components/ui/button"
@@ -28,6 +22,7 @@ interface iAppProps {
     email: string;
     image: string;
 }
+
 // ----------------------------------------------------------------------
 
 export function UserDropdown({name, email, image}: iAppProps) {
@@ -52,7 +47,7 @@ export function UserDropdown({name, email, image}: iAppProps) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+                <Button variant="ghost" className="h-auto p-1 hover:bg-transparent">
                     <Avatar>
                         <AvatarImage src={image} alt="Profile image"/>
                         <AvatarFallback>{name[0]?.toUpperCase()}</AvatarFallback>
