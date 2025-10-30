@@ -11,8 +11,8 @@ export default function CoursesPage() {
                 <h1 className="text-2xl font-bold">Your courses</h1>
 
                 <Link href="/admin/courses/create" className={buttonVariants()}>
-                    <PlusIcon/>
                     Create new course
+                    <PlusIcon/>
                 </Link>
             </div>
 
