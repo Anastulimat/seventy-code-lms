@@ -10,6 +10,7 @@ import TextAlign from "@tiptap/extension-text-align";
 
 export function RichTextEditor({field}: { field: any }) {
     const editor = useEditor({
+        immediatelyRender: false,
         extensions: [
             StarterKit,
             TextAlign.configure({types: ['heading', 'paragraph']}),
