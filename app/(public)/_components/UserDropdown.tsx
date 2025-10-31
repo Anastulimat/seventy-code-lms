@@ -15,6 +15,7 @@ import Link from "next/link";
 import {useSignOut} from "@/hooks/use-signout";
 
 // ----------------------------------------------------------------------
+
 interface iAppProps {
     name: string;
     email: string;
