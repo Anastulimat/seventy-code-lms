@@ -29,7 +29,14 @@ export type UploaderState = {
 
 // ----------------------------------------------------------------------
 
-export function Uploader() {
+interface iAppProps {
+    value?: string;
+    onChange?: (value: string) => void;
+}
+
+// ----------------------------------------------------------------------
+
+export function Uploader({value, onChange}: iAppProps) {
     const [fileState, setFileState] = useState<UploaderState>({
         id: null,
         file: null,
@@ -38,6 +45,7 @@ export function Uploader() {
         error: false,
         progress: 0,
         fileType: "image",
+        key: value,
     });
 
     async function uploadFile(file: File) {
@@ -95,6 +103,7 @@ export function Uploader() {
                             progress: 100,
                             key: key,
                         }));
+                        onChange?.(key);
                         toast.success("File uploaded successfully");
                         resolve();
                     } else {
@@ -170,6 +179,8 @@ export function Uploader() {
             if (fileState.objectUrl && !fileState.objectUrl.startsWith("http")) {
                 URL.revokeObjectURL(fileState.objectUrl);
             }
+
+            onChange?.("");
 
             setFileState(() => ({
                 file: null,
