@@ -147,12 +147,12 @@ export function Uploader() {
     async function handleRemoveFile() {
         if (fileState.isDeleting || !fileState.objectUrl) return;
 
-        try {
-            setFileState((prev) => ({
-                ...prev,
-                isDeleting: true,
-            }));
+        setFileState((prev) => ({
+            ...prev,
+            isDeleting: true,
+        }));
 
+        const deletePromise = (async () => {
             const response = await fetch("/api/s3/delete", {
                 method: "DELETE",
                 headers: {
@@ -164,13 +164,7 @@ export function Uploader() {
             });
 
             if (!response.ok) {
-                toast.error("Failed to delete file from storage");
-                setFileState((prev) => ({
-                    ...prev,
-                    isDeleting: true,
-                    error: true,
-                }));
-                return;
+                throw new Error("Failed to delete file");
             }
 
             if (fileState.objectUrl && !fileState.objectUrl.startsWith("http")) {
@@ -187,10 +181,17 @@ export function Uploader() {
                 id: null,
                 isDeleting: false,
             }));
+        })();
 
-            toast.success("File deleted successfully");
+        toast.promise(deletePromise, {
+            loading: "Deleting file...",
+            success: "File deleted successfully",
+            error: "Failed to delete file",
+        });
+
+        try {
+            await deletePromise;
         } catch {
-            toast.error("Something went wrong while deleting the file");
             setFileState((prev) => ({
                 ...prev,
                 isDeleting: false,
@@ -203,6 +204,7 @@ export function Uploader() {
         if (fileRejection.length) {
             const tooManyFiles = fileRejection.find((rejection) => rejection.errors[0].code === "too-many-files");
             const fileSizeTooBig = fileRejection.find((rejection) => rejection.errors[0].code === "file-too-large");
+            const fileTypeInvalid = fileRejection.find((rejection) => rejection.errors[0].code === "file-invalid-type");
 
             if (tooManyFiles) {
                 toast.error("Too many files, max 1 file allowed");
@@ -211,8 +213,11 @@ export function Uploader() {
             if (fileSizeTooBig) {
                 toast.error("File size too big, max 5MB allowed");
             }
-        }
 
+            if (fileTypeInvalid) {
+                toast.error("File type not supported");
+            }
+        }
     }
 
     function renderContent() {

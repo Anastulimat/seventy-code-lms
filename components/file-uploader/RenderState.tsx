@@ -2,6 +2,8 @@ import {CloudUploadIcon, ImageOffIcon, Loader2, XIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import Image from "next/image";
+import {Progress} from "@/components/ui/progress";
+import {Upload} from "lucide-react";
 
 // ----------------------------------------------------------------------
 
@@ -73,12 +75,24 @@ export function RenderUploadedState(
     )
 }
 
-export function RenderUploadingState({progress, file}: { progress: number, file: File }) {
+export function RenderUploadingState({progress, file}: { progress: number; file: File }) {
     return (
-        <div className="flex flex-col items-center justify-center text-center">
-            <p>{progress}</p>
-            <p className="mt-2 text-sm font-medium text-foreground">Uploading...</p>
-            <p className="mt-1 text-xs text-muted-foreground truncate max-w-xs">{file.name}</p>
+        <div className="flex flex-col items-center justify-center gap-4 w-full max-w-md">
+            <Upload className="w-12 h-12 text-primary animate-pulse"/>
+            <div className="w-full space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground truncate max-w-[200px]">
+                        {file.name}
+                    </span>
+                    <span className="font-medium text-primary">
+                        {progress}%
+                    </span>
+                </div>
+                <Progress value={progress} className="w-full"/>
+            </div>
+            <p className="text-sm text-muted-foreground">
+                Uploading...
+            </p>
         </div>
-    )
+    );
 }
