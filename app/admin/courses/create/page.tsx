@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {ArrowLeftIcon, PlusIcon, SparkleIcon} from "lucide-react";
+import {ArrowLeftIcon, Loader2, PlusIcon, SparkleIcon} from "lucide-react";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {useForm} from "react-hook-form";
@@ -14,13 +14,20 @@ import {Textarea} from "@/components/ui/textarea";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {RichTextEditor} from "@/components/rich-text-editor/Editor";
 import {Uploader} from "@/components/file-uploader/Uploader";
+import {useTransition} from "react";
+import {tryCatch} from "@/hooks/try-catch";
+import {CreateCourse} from "@/app/admin/courses/create/actions";
+import {toast} from "sonner";
+import {useRouter} from "next/navigation";
 
 // ----------------------------------------------------------------------
 
 export default function CreateCoursePage() {
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     const form = useForm<CourseSchemaType>({
-        resolver: zodResolver(courseSchema),
+        resolver: zodResolver(courseSchema) as never,
         defaultValues: {
             title: "",
             description: "",
@@ -36,7 +43,22 @@ export default function CreateCoursePage() {
     });
 
     function onSubmit(values: CourseSchemaType) {
-        console.log(values);
+        startTransition(async () => {
+            const {data: result, error} = await tryCatch(CreateCourse(values));
+
+            if (error) {
+                toast.error('An unexpected error occurred. Please try again later.');
+                return
+            }
+
+            if (result?.status === 'success') {
+                toast.success(result.message);
+                form.reset();
+                router.push('/admin/courses');
+            } else if (result?.status === 'error') {
+                toast.error(result.message);
+            }
+        });
     }
 
     return (
@@ -277,8 +299,22 @@ export default function CreateCoursePage() {
                                 )}
                             />
 
-                            <Button type="submit">
-                                Create course <PlusIcon className="ml-1" size={16}/>
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                            >
+                                {isPending
+                                    ? (
+                                        <>
+                                            Creating course...
+                                            <Loader2 className="ml-2 size-4 animate-spin"/>
+                                        </>
+                                    )
+                                    : (
+                                        <>
+                                            Create course
+                                        </>
+                                    )}
                             </Button>
 
                         </form>

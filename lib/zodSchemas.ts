@@ -39,11 +39,11 @@ export const courseSchema = z.object({
         .string()
         .min(1, {message: "A course file must be uploaded."}),
 
-    price: z
+    price: z.coerce
         .number()
         .min(1, {message: "Price must be at least $1."}),
 
-    duration: z
+    duration: z.coerce
         .number()
         .min(1, {message: "Duration must be at least 1 hour."})
         .max(500, {message: "Duration cannot exceed 500 hours."}),
