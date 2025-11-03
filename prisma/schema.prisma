@@ -26,11 +26,17 @@ model User {
   accounts      Account[]
   courses       Course[]
 
+  role       String?
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
+
   @@unique([email])
   @@map("user")
 }
 
 // Butter auth section
+
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -41,6 +47,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@map("session")
@@ -77,6 +85,7 @@ model Verification {
 }
 
 // Course
+
 model Course {
   id               String       @id @default(uuid())
   title            String

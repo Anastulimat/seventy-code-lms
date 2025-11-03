@@ -56,7 +56,7 @@ export function Uploader({value, onChange}: iAppProps) {
         }));
 
         try {
-            //1. Get presigned URL
+            // Get presigned URL
             const presignedResponse = await fetch("/api/s3/upload", {
                 method: "POST",
                 headers: {
@@ -71,7 +71,12 @@ export function Uploader({value, onChange}: iAppProps) {
             });
 
             if (!presignedResponse.ok) {
-                toast.error("Failed to get presigned URL");
+                if (presignedResponse.status === 429) {
+                    toast.error("Too many requests. Please wait a moment before trying again.");
+                } else {
+                    toast.error("Failed to upload. Please try again.");
+                }
+
                 setFileState((prev) => ({
                     ...prev,
                     isUploading: false,
