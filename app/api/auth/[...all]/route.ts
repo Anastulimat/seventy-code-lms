@@ -14,6 +14,8 @@ import {
 import {toNextJsHandler} from "better-auth/next-js";
 import {NextRequest} from "next/server";
 
+// ----------------------------------------------------------------------
+
 const emailOptions = {
     mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
     // Block emails that are disposable, invalid, or have no MX records
