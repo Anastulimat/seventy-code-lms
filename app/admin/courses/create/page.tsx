@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {ArrowLeftIcon, Loader2, PlusIcon, SparkleIcon} from "lucide-react";
+import {ArrowLeftIcon, Loader2, SparkleIcon} from "lucide-react";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {useForm} from "react-hook-form";
@@ -121,7 +121,12 @@ export default function CreateCoursePage() {
 
                                 <Button type="button" className="w-fit" onClick={() => {
                                     const titleValue = form.getValues("title");
-                                    const slug = slugify(titleValue);
+                                    const slug = slugify(titleValue, {
+                                        lower: true,
+                                        strict: true,
+                                        trim: true,
+                                        remove: /[*+~.()'"!:@]/g,
+                                    });
                                     form.setValue('slug', slug, {shouldValidate: true});
                                 }}>
                                     Generate slug <SparkleIcon className="ml-1" size={16}/>
