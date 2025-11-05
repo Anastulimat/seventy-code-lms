@@ -159,7 +159,7 @@ export function CourseStructure({data}: iAppProps) {
                                                         <GripVerticalIcon className="size-4"/>
                                                     </Button>
 
-                                                    <CollapsibleTrigger>
+                                                    <CollapsibleTrigger asChild>
                                                         <Button
                                                             size="icon"
                                                             variant="ghost"
