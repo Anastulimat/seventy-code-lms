@@ -2,6 +2,7 @@ import {adminGetCourse} from "@/app/data/admin/admin-get-course";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {EditCourseForm} from "@/app/admin/courses/[courseId]/edit/_components/EditCourseForm";
+import {CourseStructure} from "@/app/admin/courses/[courseId]/edit/_components/CourseStructure";
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +46,17 @@ export default async function EditCoursePage({params}: { params: Params }) {
                 </TabsContent>
 
                 <TabsContent value="course-structure">
-
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Course structure</CardTitle>
+                            <CardDescription>
+                                Here you can update your course structure
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <CourseStructure/>
+                        </CardContent>
+                    </Card>
                 </TabsContent>
             </Tabs>
         </div>
