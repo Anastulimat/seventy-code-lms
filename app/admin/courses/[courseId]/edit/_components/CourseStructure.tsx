@@ -26,6 +26,7 @@ import {ChevronDown, ChevronUp, FileTextIcon, GripVerticalIcon, Trash2Icon} from
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {toast} from "sonner";
+import {reorderLessons} from "@/app/admin/courses/[courseId]/edit/actions";
 
 // ----------------------------------------------------------------------
 
@@ -134,7 +135,7 @@ export function CourseStructure({data}: iAppProps) {
                 order: index + 1,
             }));
 
-            // const previousItems = [...items];
+            const previousItems = [...items];
             setItems(updatedChaptersForState);
         }
 
@@ -174,10 +175,38 @@ export function CourseStructure({data}: iAppProps) {
                 lessons: updatedLessonsForState,
             };
 
-            // const previousItems = [...items];
+            const previousItems = [...items];
             setItems(newItems);
-        }
 
+            if (courseId) {
+                const lessonsToUpdate = updatedLessonsForState.map((lesson) => ({
+                    id: lesson.id,
+                    position: lesson.order,
+                }));
+
+                const reorderLessonsPromise = () => reorderLessons(
+                    chapterId,
+                    lessonsToUpdate,
+                    courseId,
+                );
+
+                toast.promise(reorderLessonsPromise(), {
+                    loading: 'Reordering lessons...',
+                    success: (result) => {
+                        if (result.status === 'success') {
+                            return result.message;
+                        }
+                        throw new Error(result.message);
+                    },
+                    error: () => {
+                        setItems(previousItems);
+                        return 'Failed to oreder lessons';
+                    }
+                })
+            }
+
+            return;
+        }
     }
 
 

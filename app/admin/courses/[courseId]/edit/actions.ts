@@ -6,6 +6,7 @@ import {courseSchema, CourseSchemaType} from "@/lib/zodSchemas";
 import {prisma} from "@/lib/prisma";
 import arcjet, {detectBot, fixedWindow} from "@/lib/arcjet";
 import {request} from "@arcjet/next";
+import {revalidatePath} from "next/cache";
 
 // ----------------------------------------------------------------------
 
@@ -75,6 +76,46 @@ export async function editCourses(data: CourseSchemaType, courseId: string): Pro
         return {
             status: "error",
             message: "Failed to update course",
+        }
+    }
+}
+
+export async function reorderLessons(
+    chapterId: string,
+    lessons: { id: string, position: number }[],
+    courseId: string
+): Promise<ApiResponse> {
+    try {
+        if (!lessons || lessons.length < 1) {
+            return {
+                status: "error",
+                message: "No lessons provided for ordering",
+            }
+        }
+
+        const updates = lessons.map((lesson) => prisma.lesson.update({
+            where: {
+                id: lesson.id,
+                chapterId: chapterId
+            },
+            data: {
+                position: lesson.position
+            }
+        }));
+
+        await prisma.$transaction(updates);
+
+        revalidatePath(`/admin/courses/${courseId}/edit`);
+
+        return {
+            status: "success",
+            message: "Lessons reordered successfully",
+        }
+    } catch (error) {
+        console.log(error);
+        return {
+            status: "error",
+            message: "Failed to reorder lessons",
         }
     }
 }
