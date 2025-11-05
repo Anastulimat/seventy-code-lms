@@ -24,7 +24,7 @@ const aj = arcjet.withRule(
 
 // ----------------------------------------------------------------------
 
-export const CreateCourse = async (values: CourseSchemaType): Promise<ApiResponse> => {
+export const createCourse = async (values: CourseSchemaType): Promise<ApiResponse> => {
     const session = await requireAdmin();
 
     try {

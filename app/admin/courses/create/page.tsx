@@ -16,7 +16,7 @@ import {RichTextEditor} from "@/components/rich-text-editor/Editor";
 import {Uploader} from "@/components/file-uploader/Uploader";
 import {useTransition} from "react";
 import {tryCatch} from "@/hooks/try-catch";
-import {CreateCourse} from "@/app/admin/courses/create/actions";
+import {createCourse} from "@/app/admin/courses/create/actions";
 import {toast} from "sonner";
 import {useRouter} from "next/navigation";
 
@@ -44,7 +44,7 @@ export default function CreateCoursePage() {
 
     function onSubmit(values: CourseSchemaType) {
         startTransition(async () => {
-            const {data: result, error} = await tryCatch(CreateCourse(values));
+            const {data: result, error} = await tryCatch(createCourse(values));
 
             if (error) {
                 toast.error('An unexpected error occurred. Please try again later.');
