@@ -2,7 +2,6 @@
 
 import {
     DndContext,
-    DragEndEvent,
     DraggableSyntheticListeners,
     KeyboardSensor,
     PointerSensor,
@@ -26,6 +25,7 @@ import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/
 import {ChevronDown, ChevronUp, FileTextIcon, GripVerticalIcon, Trash2Icon} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
+import {toast} from "sonner";
 
 // ----------------------------------------------------------------------
 
@@ -94,19 +94,90 @@ export function CourseStructure({data}: iAppProps) {
     }
 
 
-    function handleDragEnd(event: DragEndEvent) {
+    function handleDragEnd(event) {
         const {active, over} = event;
 
-        if (!over) return;
+        if (!over || active.id === over.id) return;
 
-        if (active.id !== over.id) {
-            setItems((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id);
-                const newIndex = items.findIndex((item) => item.id === over.id);
+        const activeId = active.id;
+        const overId = over.id;
+        const activeType = active.data.current?.type as "chapter" | "lesson";
+        const overType = over.data.current?.type as "chapter" | "lesson";
+        const courseId = data.id;
 
-                return arrayMove(items, oldIndex, newIndex);
-            });
+        if (activeType === "chapter") {
+            let targetChapterId = null;
+
+            if (overType === "chapter") {
+                targetChapterId = overId;
+            } else if (overType === "lesson") {
+                targetChapterId = over.data.current?.chapterId ?? null;
+            }
+
+            if (!targetChapterId) {
+                toast.error('Could not determine the chapter for reordering');
+                return;
+            }
+
+            const oldIndex = items.findIndex((item) => item.id === activeId);
+            const newIndex = items.findIndex((item) => item.id === targetChapterId);
+
+            if (oldIndex === -1 || newIndex === -1) {
+                toast.error('Could not find chapter for reordering');
+                return;
+            }
+
+            const reorderedLocalChapters = arrayMove(items, oldIndex, newIndex);
+
+            const updatedChaptersForState = reorderedLocalChapters.map((chapter, index) => ({
+                ...chapter,
+                order: index + 1,
+            }));
+
+            // const previousItems = [...items];
+            setItems(updatedChaptersForState);
         }
+
+        if (activeType === "lesson" && overType === "lesson") {
+            const chapterId = active.data.current?.chapterId;
+            const overChapterId = over.data.current?.chapterId;
+
+            if (!chapterId || chapterId !== overChapterId) {
+                toast.error('Lesson move between different chapters or invalid chapter ID is not allowed');
+                return;
+            }
+
+            const chapterIndex = items.findIndex((chapter) => chapter.id === chapterId);
+            if (chapterIndex === -1) {
+                toast.error('Could not find chapter for reordering');
+                return;
+            }
+
+            const chapterToUpdate = items[chapterIndex];
+            const oldLessonIndex = chapterToUpdate.lessons.findIndex((lesson) => lesson.id === activeId);
+            const newLessonIndex = chapterToUpdate.lessons.findIndex((lesson) => lesson.id === overId);
+
+            if (oldLessonIndex === -1 || newLessonIndex === -1) {
+                toast.error('Could not find lesson for reordering');
+                return;
+            }
+
+            const reorderedLessonss = arrayMove(chapterToUpdate.lessons, oldLessonIndex, newLessonIndex);
+            const updatedLessonsForState = reorderedLessonss.map((lesson, index) => ({
+                ...lesson,
+                order: index + 1,
+            }));
+
+            const newItems = [...items];
+            newItems[chapterIndex] = {
+                ...chapterToUpdate,
+                lessons: updatedLessonsForState,
+            };
+
+            // const previousItems = [...items];
+            setItems(newItems);
+        }
+
     }
 
 
@@ -137,7 +208,7 @@ export function CourseStructure({data}: iAppProps) {
                     <CardTitle>Chapters</CardTitle>
                 </CardHeader>
 
-                <CardContent>
+                <CardContent className="space-y-6">
                     <SortableContext
                         strategy={verticalListSortingStrategy}
                         items={items}
@@ -145,15 +216,17 @@ export function CourseStructure({data}: iAppProps) {
                         {items.map((item) => (
                             <SortableItem key={item.id} id={item.id} data={{type: "chapter"}}>
                                 {(listeners) => (
-                                    <Card>
-                                        <Collapsible open={item.isOpen} onOpenChange={() => toggleChapter(item.id)}>
+                                    <Card className="py-0">
+                                        <Collapsible className="rounded-xl" open={item.isOpen}
+                                                     onOpenChange={() => toggleChapter(item.id)}>
                                             <div
-                                                className="flex items-center justify-between p-3 border-b border-border"
+                                                className="flex items-center justify-between p-3 border-b border-border rounded-t-xl bg-accent"
                                             >
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center">
                                                     <Button
                                                         size="icon"
-                                                        variant="ghost"
+                                                        variant="outline"
+                                                        className="hover:cursor-grab active:cursor-grabbing"
                                                         {...listeners}
                                                     >
                                                         <GripVerticalIcon className="size-4"/>
@@ -178,7 +251,7 @@ export function CourseStructure({data}: iAppProps) {
                                                     </p>
                                                 </div>
 
-                                                <Button size="icon" variant="outline">
+                                                <Button size="icon" variant="destructive">
                                                     <Trash2Icon className="size-4"/>
                                                 </Button>
                                             </div>
@@ -203,6 +276,7 @@ export function CourseStructure({data}: iAppProps) {
                                                                             <Button
                                                                                 variant="ghost"
                                                                                 size="icon"
+                                                                                className="hover:cursor-grab active:cursor-grabbing"
                                                                                 {...lessonListeners}
                                                                             >
                                                                                 <GripVerticalIcon className="size-4"/>
@@ -214,7 +288,7 @@ export function CourseStructure({data}: iAppProps) {
                                                                                 {lesson.title}
                                                                             </Link>
                                                                         </div>
-                                                                        <Button variant="outline" size="icon">
+                                                                        <Button variant="destructive" size="icon">
                                                                             <Trash2Icon className="size-4"/>
                                                                         </Button>
                                                                     </div>
