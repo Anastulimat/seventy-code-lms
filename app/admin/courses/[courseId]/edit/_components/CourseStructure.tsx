@@ -2,6 +2,7 @@
 
 import {
     DndContext,
+    DragEndEvent,
     DraggableSyntheticListeners,
     KeyboardSensor,
     PointerSensor,
@@ -17,7 +18,7 @@ import {
     useSortable,
     verticalListSortingStrategy
 } from "@dnd-kit/sortable";
-import {ReactNode, useState} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {CSS} from '@dnd-kit/utilities';
 import {AdminCoursSingularType} from "@/app/data/admin/admin-get-course";
 import {cn} from "@/lib/utils";
@@ -26,7 +27,7 @@ import {ChevronDown, ChevronUp, FileTextIcon, GripVerticalIcon, Trash2Icon} from
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {toast} from "sonner";
-import {reorderLessons} from "@/app/admin/courses/[courseId]/edit/actions";
+import {reorderChapters, reorderLessons} from "@/app/admin/courses/[courseId]/edit/actions";
 
 // ----------------------------------------------------------------------
 
@@ -58,10 +59,25 @@ export function CourseStructure({data}: iAppProps) {
             title: lesson.title,
             order: lesson.position,
         })),
-
     })) || [];
 
     const [items, setItems] = useState(initialItems);
+
+    useEffect(() => {
+        setItems((prevItems) => {
+            return data.chapter.map((chapter) => ({
+                id: chapter.id,
+                title: chapter.title,
+                order: chapter.position,
+                isOpen: prevItems.find((item) => item.id === chapter.id)?.isOpen ?? true,
+                lessons: chapter.lessons.map((lesson) => ({
+                    id: lesson.id,
+                    title: lesson.title,
+                    order: lesson.position,
+                })),
+            })) || [];
+        });
+    }, [data]);
 
     function SortableItem({id, children, data, className}: SortableItemProps) {
         const {
@@ -95,7 +111,7 @@ export function CourseStructure({data}: iAppProps) {
     }
 
 
-    function handleDragEnd(event) {
+    function handleDragEnd(event: DragEndEvent) {
         const {active, over} = event;
 
         if (!over || active.id === over.id) return;
@@ -137,6 +153,29 @@ export function CourseStructure({data}: iAppProps) {
 
             const previousItems = [...items];
             setItems(updatedChaptersForState);
+
+            if (courseId) {
+                const chaptersToUpdate = updatedChaptersForState.map((chapter) => ({
+                    id: chapter.id,
+                    position: chapter.order,
+                }));
+
+                const reorderPromise = () => reorderChapters(courseId, chaptersToUpdate);
+
+                toast.promise(reorderPromise(), {
+                    loading: 'Reordering chapters...',
+                    success: (result) => {
+                        if (result.status === 'success') {
+                            return result.message;
+                        }
+                        throw new Error(result.message);
+                    },
+                    error: () => {
+                        setItems(previousItems);
+                        return 'Failed to reorder chapters';
+                    }
+                });
+            }
         }
 
         if (activeType === "lesson" && overType === "lesson") {
@@ -200,9 +239,9 @@ export function CourseStructure({data}: iAppProps) {
                     },
                     error: () => {
                         setItems(previousItems);
-                        return 'Failed to oreder lessons';
+                        return 'Failed to reorder lessons';
                     }
-                })
+                });
             }
 
             return;
