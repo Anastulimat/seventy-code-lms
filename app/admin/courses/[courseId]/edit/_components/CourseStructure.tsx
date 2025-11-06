@@ -23,7 +23,7 @@ import {CSS} from '@dnd-kit/utilities';
 import {AdminCoursSingularType} from "@/app/data/admin/admin-get-course";
 import {cn} from "@/lib/utils";
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible";
-import {ChevronDown, ChevronUp, FileTextIcon, GripVerticalIcon, Trash2Icon} from "lucide-react";
+import {ChevronDown, ChevronUp, FileTextIcon, GripVerticalIcon} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {toast} from "sonner";
@@ -31,6 +31,7 @@ import {reorderChapters, reorderLessons} from "@/app/admin/courses/[courseId]/ed
 import {NewChapterModal} from "@/app/admin/courses/[courseId]/edit/_components/NewChapterModal";
 import {NewLessonModal} from "@/app/admin/courses/[courseId]/edit/_components/NewLessonModal";
 import {DeleteLessonModal} from "@/app/admin/courses/[courseId]/edit/_components/DeleteLessonModal";
+import {DeleteChapterModal} from "@/app/admin/courses/[courseId]/edit/_components/DeleteChapterModal";
 
 // ----------------------------------------------------------------------
 
@@ -326,9 +327,7 @@ export function CourseStructure({data}: iAppProps) {
                                                     </p>
                                                 </div>
 
-                                                <Button size="icon" variant="destructive">
-                                                    <Trash2Icon className="size-4"/>
-                                                </Button>
+                                                <DeleteChapterModal chapterId={item.id} courseId={data.id}/>
                                             </div>
 
                                             <CollapsibleContent>
