@@ -12,6 +12,10 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Input} from "@/components/ui/input";
 import {RichTextEditor} from "@/components/rich-text-editor/Editor";
 import {Uploader} from "@/components/file-uploader/Uploader";
+import {useTransition} from "react";
+import {tryCatch} from "@/hooks/try-catch";
+import {updateLesson} from "@/app/admin/courses/[courseId]/[chapterId]/[lessonId]/actions";
+import {toast} from "sonner";
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +29,8 @@ interface iAppProps {
 
 export function LessonForm({data, chapterId, courseId}: iAppProps) {
 
+    const [isPending, startTransition] = useTransition();
+
     const form = useForm<LessonSchemaType>({
         resolver: zodResolver(lessonSchema),
         defaultValues: {
@@ -36,6 +42,24 @@ export function LessonForm({data, chapterId, courseId}: iAppProps) {
             courseId: courseId,
         }
     });
+
+    async function onSubmit(values: LessonSchemaType) {
+        startTransition(async () => {
+            const {data: result, error} = await tryCatch(updateLesson(values, data.id));
+
+            if (error) {
+                toast.error('An unexpected error occurred. Please try again later.');
+                return;
+            }
+
+            if (result?.status === 'success') {
+                toast.success(result.message);
+                form.reset();
+            } else if (result?.status === 'error') {
+                toast.error(result.message);
+            }
+        });
+    }
 
     return (
         <div>
@@ -59,7 +83,10 @@ export function LessonForm({data, chapterId, courseId}: iAppProps) {
 
                 <CardContent>
                     <Form {...form}>
-                        <form className="space-y-6">
+                        <form
+                            className="space-y-6"
+                            onSubmit={form.handleSubmit(onSubmit)}
+                        >
                             <FormField
                                 control={form.control}
                                 name="title"
@@ -129,8 +156,9 @@ export function LessonForm({data, chapterId, courseId}: iAppProps) {
 
                             <Button
                                 type="submit"
+                                disabled={isPending}
                             >
-                                Save changes
+                                {isPending ? 'Updating...' : 'Update'}
                             </Button>
                         </form>
                     </Form>

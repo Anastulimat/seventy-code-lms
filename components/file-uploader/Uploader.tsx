@@ -276,7 +276,7 @@ export function Uploader({value, onChange, fileTypeAccepted}: iAppProps) {
         accept: fileTypeAccepted === 'video' ? {'video/*': []} : {'image/*': []},
         maxFiles: 1,
         multiple: false,
-        maxSize: 5 * 1024 * 1024, // 5MB,
+        maxSize: fileTypeAccepted === 'image' ? 5 * 1024 * 1024 : 2000 * 1024 * 1024, // 5MB or 2000MB
         onDropRejected: rejectedFiles,
         disabled: fileState.isUploading || !!fileState.objectUrl,
     });

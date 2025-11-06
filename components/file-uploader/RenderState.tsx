@@ -73,7 +73,7 @@ export function RenderUploadedState(
                 variant="destructive"
                 size="icon"
                 className={cn(
-                    'absolute top-4 right-4 cursor-pointer',
+                    'absolute top-2 right-2 cursor-pointer',
                 )}
                 onClick={handleRemoveFile}
                 disabled={isDeleting}
