@@ -1,9 +1,8 @@
-import {CloudUploadIcon, ImageOffIcon, Loader2, XIcon} from "lucide-react";
+import {CloudUploadIcon, ImageOffIcon, Loader2, Upload, XIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import Image from "next/image";
 import {Progress} from "@/components/ui/progress";
-import {Upload} from "lucide-react";
 
 // ----------------------------------------------------------------------
 
@@ -49,16 +48,26 @@ export function RenderUploadedState(
     {
         previewUrl,
         isDeleting,
-        handleRemoveFile
+        handleRemoveFile,
+        fileType,
     }:
     {
         previewUrl: string,
         isDeleting: boolean,
         handleRemoveFile: () => void,
+        fileType: "image" | "video",
     }) {
     return (
-        <div>
-            <Image src={previewUrl} alt="Uploaded file" fill className="object-contain p-2"/>
+        <div className="relative group w-full h-full flex items-center justify-center">
+            {fileType === "video" ? (
+                <video
+                    controls
+                    src={previewUrl}
+                    className="w-full h-full rounded-md"
+                />
+            ) : (
+                <Image src={previewUrl} alt="Uploaded file" fill className="object-contain p-2"/>
+            )}
             <Button
                 type="button"
                 variant="destructive"

@@ -357,7 +357,7 @@ export function CourseStructure({data}: iAppProps) {
                                                                             </Button>
                                                                             <FileTextIcon className="size-4"/>
                                                                             <Link
-                                                                                href={`/admin/courses/${data.id}/${lesson.id}`}
+                                                                                href={`/admin/courses/${data.id}/${item.id}/${lesson.id}`}
                                                                             >
                                                                                 {lesson.title}
                                                                             </Link>

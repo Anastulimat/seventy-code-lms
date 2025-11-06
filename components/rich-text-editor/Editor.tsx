@@ -9,6 +9,30 @@ import TextAlign from "@tiptap/extension-text-align";
 // ----------------------------------------------------------------------
 
 export function RichTextEditor({field}: { field: any }) {
+    // Fonction helper pour parser le contenu en toute sécurité
+    const parseContent = (value: string | null | undefined) => {
+        if (!value) return '<p>Hello world!</p>';
+
+        try {
+            return JSON.parse(value);
+        } catch {
+            return {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: value
+                            }
+                        ]
+                    }
+                ]
+            };
+        }
+    };
+
     const editor = useEditor({
         immediatelyRender: false,
         extensions: [
@@ -24,7 +48,7 @@ export function RichTextEditor({field}: { field: any }) {
         onUpdate: ({editor}) => {
             field.onChange(JSON.stringify(editor.getJSON()))
         },
-        content: field.value ? JSON.parse(field.value) : '<p>Hello world!</p>'
+        content: parseContent(field.value)
     });
 
 
