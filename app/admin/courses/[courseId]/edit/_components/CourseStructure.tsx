@@ -28,6 +28,8 @@ import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {toast} from "sonner";
 import {reorderChapters, reorderLessons} from "@/app/admin/courses/[courseId]/edit/actions";
+import {NewChapterModal} from "@/app/admin/courses/[courseId]/edit/_components/NewChapterModal";
+import {NewLessonModal} from "@/app/admin/courses/[courseId]/edit/_components/NewLessonModal";
 
 // ----------------------------------------------------------------------
 
@@ -265,6 +267,9 @@ export function CourseStructure({data}: iAppProps) {
         )
     }
 
+
+    // ----------------------------------------------------------------------
+
     return (
         <DndContext
             collisionDetection={rectIntersection}
@@ -274,6 +279,7 @@ export function CourseStructure({data}: iAppProps) {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between border-b border-border">
                     <CardTitle>Chapters</CardTitle>
+                    <NewChapterModal courseId={data.id}/>
                 </CardHeader>
 
                 <CardContent className="space-y-6">
@@ -365,9 +371,10 @@ export function CourseStructure({data}: iAppProps) {
                                                         ))}
                                                     </SortableContext>
                                                     <div className="p-2">
-                                                        <Button variant="outline" className="w-full">
-                                                            Create new lesson
-                                                        </Button>
+                                                        <NewLessonModal
+                                                            courseId={data.id}
+                                                            chapterId={item.id}
+                                                        />
                                                     </div>
                                                 </div>
                                             </CollapsibleContent>
