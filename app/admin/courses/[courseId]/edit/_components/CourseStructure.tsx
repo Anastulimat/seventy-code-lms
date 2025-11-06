@@ -30,6 +30,7 @@ import {toast} from "sonner";
 import {reorderChapters, reorderLessons} from "@/app/admin/courses/[courseId]/edit/actions";
 import {NewChapterModal} from "@/app/admin/courses/[courseId]/edit/_components/NewChapterModal";
 import {NewLessonModal} from "@/app/admin/courses/[courseId]/edit/_components/NewLessonModal";
+import {DeleteLessonModal} from "@/app/admin/courses/[courseId]/edit/_components/DeleteLessonModal";
 
 // ----------------------------------------------------------------------
 
@@ -362,9 +363,11 @@ export function CourseStructure({data}: iAppProps) {
                                                                                 {lesson.title}
                                                                             </Link>
                                                                         </div>
-                                                                        <Button variant="destructive" size="icon">
-                                                                            <Trash2Icon className="size-4"/>
-                                                                        </Button>
+                                                                        <DeleteLessonModal
+                                                                            chapterId={item.id}
+                                                                            courseId={data.id}
+                                                                            lessonId={lesson.id}
+                                                                        />
                                                                     </div>
                                                                 )}
                                                             </SortableItem>
