@@ -6,7 +6,9 @@ import {prisma} from "@/lib/prisma";
 export async function adminGetCourses() {
     await requireAdmin();
 
-    const data = await prisma.course.findMany({
+    await new Promise(resolve => setTimeout(resolve, 10000));
+
+    return prisma.course.findMany({
         orderBy: {
             createdAt: 'desc'
         },
@@ -22,8 +24,6 @@ export async function adminGetCourses() {
             slug: true,
         }
     });
-
-    return data;
 }
 
 export type AdminCourseType = Awaited<ReturnType<typeof adminGetCourses>>[0];
