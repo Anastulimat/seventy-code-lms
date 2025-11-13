@@ -73,7 +73,7 @@ export function UserDropdown({name, email, image}: iAppProps) {
                     </DropdownMenuItem>
 
                     <DropdownMenuItem asChild>
-                        <Link href="/admin">
+                        <Link href="/admin/courses">
                             <LayoutDashboardIcon size={16} className="opacity-60" aria-hidden="true"/>
                             <span>Dashboard</span>
                         </Link>

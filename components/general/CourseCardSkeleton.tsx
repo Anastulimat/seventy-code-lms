@@ -3,7 +3,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 
 // ----------------------------------------------------------------------
 
-export function AdminCourseCardSkeleton() {
+export function CourseCardSkeleton() {
     return (
         <Card className="group relative py-0 gap-0">
             {/* Skeleton pour le bouton dropdown */}
@@ -12,12 +12,11 @@ export function AdminCourseCardSkeleton() {
             </div>
 
             {/* Skeleton pour l'image */}
-            <Skeleton className="w-full rounded-t-lg aspect-video"/>
+            <Skeleton className="w-full rounded-t-xl aspect-video"/>
 
             <CardContent className="p-4">
                 {/* Skeleton pour le titre */}
                 <div className="space-y-2">
-                    <Skeleton className="h-6 w-full"/>
                     <Skeleton className="h-6 w-3/4"/>
                 </div>
 
